@@ -15,7 +15,7 @@ pipeline {
         }
         stage('Checkout from Git') {
             steps {
-                git branch: 'main', url: 'https://github.com/KastroVKiran/Book-My-Show.git'
+                git branch: 'main', url: 'https://github.com/prakash006602/Book-My-Show.git'
                 sh 'ls -la'  // Verify files after checkout
             }
         }
@@ -32,7 +32,7 @@ pipeline {
         stage('Quality Gate') {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonarqube'
+                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
                 }
             }
         }
@@ -59,13 +59,13 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
+                    withDockerRegistry(credentialsId: 'docker-creds', toolName: 'docker') {
                         sh ''' 
                         echo "Building Docker image..."
-                        docker build --no-cache -t kastrov/bms:latest -f bookmyshow-app/Dockerfile bookmyshow-app
+                        docker build -t moses777/bms:latest -f bookmyshow-app/Dockerfile bookmyshow-app
 
                         echo "Pushing Docker image to registry..."
-                        docker push kastrov/bms:latest
+                        docker push moses777/bms:latest
                         '''
                     }
                 }
@@ -79,7 +79,7 @@ pipeline {
                 docker rm bms || true
 
                 echo "Running new container on port 3000..."
-                docker run -d --restart=always --name bms -p 3000:3000 kastrov/bms:latest
+                docker run -d --restart=always --name bms -p 3000:3000 moses777/bms:latest
 
                 echo "Checking running containers..."
                 docker ps -a
